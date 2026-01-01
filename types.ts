@@ -27,6 +27,7 @@ export interface ScheduleEvent {
   pinterestLinkMen: string;   // Updated
   pinterestLinkWomen: string; // Updated
   googleMapLink?: string;
+  isLogistics?: boolean;
 }
 
 export interface FaqItem {

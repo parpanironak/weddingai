@@ -18,8 +18,8 @@ export const SECTIONS: SectionData[] = [
   },
   {
     id: SectionId.RSVP,
-    title: "RSVP",
-    subtitle: "Please Join Us",
+    title: "Guest Details",
+    subtitle: "Please RSPV by Mar 31st",
     backgroundImage: "https://images.unsplash.com/photo-1516961642265-531546e84af2?q=80&w=1974&auto=format&fit=crop",
     backgroundVideo: "https://cdn.pixabay.com/video/2025/01/26/254787_large.mp4" 
   },
@@ -46,7 +46,21 @@ export const SCHEDULE: ScheduleEvent[] = [
     pinterestLinkWomen: "https://www.pinterest.com/ronak47/unique-bridal-jewelry/",
     googleMapLink: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d58041.883059430926!2d73.65088462829591!3d24.602386892957355!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3967e5ead3e3d2d1%3A0x957c469e27a6755d!2sOm%20Glass%20Decor!5e0!3m2!1sen!2sin!4v1767201583717!5m2!1sen!2sin"
   },
-{
+  {
+    time: "Oct 24 - 12:00 PM",
+    title: "Guest Check-in",
+    description: "Welcome to Udaipur! Please check in at the main lobby and refresh before the festivities.",
+    location: "Hotel Lobby",
+    icon: "key",
+    dressCode: "Travel Casual",
+    dressCodeDescription: "Comfortable travel wear.",
+    dressCodeImage: "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop",
+    pinterestLinkMen: "",
+    pinterestLinkWomen: "",
+    googleMapLink: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d58041.883059430926!2d73.65088462829591!3d24.602386892957355!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3967e5ead3e3d2d1%3A0x957c469e27a6755d!2sOm%20Glass%20Decor!5e0!3m2!1sen!2sin!4v1767201583717!5m2!1sen!2sin",
+    isLogistics: true
+  },
+  {
     time: "Oct 24 - 4:00 PM",
     title: "Sangeet Night",
     description: "An intimate evening of music, acoustic melodies, and shared stories.",

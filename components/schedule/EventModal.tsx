@@ -16,6 +16,9 @@ export const EventModal: React.FC<EventModalProps> = ({ event, onClose }) => {
   useEffect(() => {
     if (!event) return;
 
+    // Skip pinterest logic if no links are present
+    if (!event.pinterestLinkWomen && !event.pinterestLinkMen) return;
+
     // Function to initialize Pinterest
     const initPinterest = () => {
       const pinUtils = (window as any).PinUtils;
@@ -65,6 +68,7 @@ export const EventModal: React.FC<EventModalProps> = ({ event, onClose }) => {
   };
 
   const mapSrc = getMapSrc(event.googleMapLink, event.location);
+  const showStyleGuide = event.pinterestLinkWomen || event.pinterestLinkMen;
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300">
@@ -99,6 +103,10 @@ export const EventModal: React.FC<EventModalProps> = ({ event, onClose }) => {
                         <Shirt size={12} /> {event.dressCode}
                     </span>
                 </div>
+                
+                {event.description && (
+                  <p className="max-w-xl mx-auto text-scandi-charcoal/70 text-sm leading-relaxed font-sans">{event.description}</p>
+                )}
             </div>
 
             {/* Google Map Embed */}
@@ -118,63 +126,67 @@ export const EventModal: React.FC<EventModalProps> = ({ event, onClose }) => {
                 <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_20px_rgba(0,0,0,0.1)]"></div>
             </div>
 
-            {/* Style Guide Section */}
-            <div className="px-6 md:px-12 py-12">
-                <div className="text-center mb-10">
-                    <h3 className="font-serif text-2xl md:text-3xl text-scandi-charcoal mb-2">Style Guide</h3>
-                    <p className="text-[10px] uppercase tracking-widest text-scandi-gold font-bold">Inspiration for the Occasion</p>
-                </div>
+            {/* Style Guide Section - Only Show if Links Exist */}
+            {showStyleGuide && (
+              <div className="px-6 md:px-12 py-12">
+                  <div className="text-center mb-10">
+                      <h3 className="font-serif text-2xl md:text-3xl text-scandi-charcoal mb-2">Style Guide</h3>
+                      <p className="text-[10px] uppercase tracking-widest text-scandi-gold font-bold">Inspiration for the Occasion</p>
+                  </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-4xl mx-auto">
-                    {/* Women's Board */}
-                    <div className="flex flex-col items-center">
-                        <div className="mb-4 flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-scandi-charcoal/60">
-                            <span>For Her</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-4xl mx-auto">
+                      {/* Women's Board */}
+                      {event.pinterestLinkWomen && (
+                        <div className="flex flex-col items-center">
+                            <div className="mb-4 flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-scandi-charcoal/60">
+                                <span>For Her</span>
+                            </div>
+                            <div className="w-full flex justify-center min-h-[400px] relative">
+                                <a 
+                                    data-pin-do="embedBoard" 
+                                    data-pin-board-width="300" 
+                                    data-pin-scale-height="400" 
+                                    data-pin-scale-width="80" 
+                                    href={event.pinterestLinkWomen}
+                                    className="flex flex-col items-center justify-center p-8 text-scandi-charcoal/40 hover:text-scandi-gold transition-colors w-full h-full border border-dashed border-scandi-charcoal/10 rounded-xl"
+                                >
+                                    <Info className="mb-2 opacity-50" />
+                                    <span className="text-sm font-semibold">Load Women's Fashion</span>
+                                    <span className="text-xs mt-1 opacity-60 flex items-center gap-1">
+                                        Click to view on Pinterest <ArrowUpRight size={10} />
+                                    </span>
+                                </a>
+                            </div>
                         </div>
-                        {/* Pinterest Container - Clean (No box) */}
-                        <div className="w-full flex justify-center min-h-[400px] relative">
-                             <a 
-                                data-pin-do="embedBoard" 
-                                data-pin-board-width="300" 
-                                data-pin-scale-height="400" 
-                                data-pin-scale-width="80" 
-                                href={event.pinterestLinkWomen}
-                                className="flex flex-col items-center justify-center p-8 text-scandi-charcoal/40 hover:text-scandi-gold transition-colors w-full h-full border border-dashed border-scandi-charcoal/10 rounded-xl"
-                              >
-                                 <Info className="mb-2 opacity-50" />
-                                 <span className="text-sm font-semibold">Load Women's Fashion</span>
-                                 <span className="text-xs mt-1 opacity-60 flex items-center gap-1">
-                                    Click to view on Pinterest <ArrowUpRight size={10} />
-                                 </span>
-                              </a>
-                        </div>
-                    </div>
+                      )}
 
-                    {/* Men's Board */}
-                    <div className="flex flex-col items-center">
-                        <div className="mb-4 flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-scandi-charcoal/60">
-                            <span>For Him</span>
+                      {/* Men's Board */}
+                      {event.pinterestLinkMen && (
+                        <div className="flex flex-col items-center">
+                            <div className="mb-4 flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-scandi-charcoal/60">
+                                <span>For Him</span>
+                            </div>
+                            <div className="w-full flex justify-center min-h-[400px] relative">
+                                <a 
+                                    data-pin-do="embedBoard" 
+                                    data-pin-board-width="300" 
+                                    data-pin-scale-height="400" 
+                                    data-pin-scale-width="80" 
+                                    href={event.pinterestLinkMen}
+                                    className="flex flex-col items-center justify-center p-8 text-scandi-charcoal/40 hover:text-scandi-gold transition-colors w-full h-full border border-dashed border-scandi-charcoal/10 rounded-xl"
+                                >
+                                    <Info className="mb-2 opacity-50" />
+                                    <span className="text-sm font-semibold">Load Men's Fashion</span>
+                                    <span className="text-xs mt-1 opacity-60 flex items-center gap-1">
+                                        Click to view on Pinterest <ArrowUpRight size={10} />
+                                    </span>
+                                </a>
+                            </div>
                         </div>
-                        {/* Pinterest Container - Clean (No box) */}
-                        <div className="w-full flex justify-center min-h-[400px] relative">
-                             <a 
-                                data-pin-do="embedBoard" 
-                                data-pin-board-width="300" 
-                                data-pin-scale-height="400" 
-                                data-pin-scale-width="80" 
-                                href={event.pinterestLinkMen}
-                                className="flex flex-col items-center justify-center p-8 text-scandi-charcoal/40 hover:text-scandi-gold transition-colors w-full h-full border border-dashed border-scandi-charcoal/10 rounded-xl"
-                              >
-                                 <Info className="mb-2 opacity-50" />
-                                 <span className="text-sm font-semibold">Load Men's Fashion</span>
-                                 <span className="text-xs mt-1 opacity-60 flex items-center gap-1">
-                                    Click to view on Pinterest <ArrowUpRight size={10} />
-                                 </span>
-                              </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                      )}
+                  </div>
+              </div>
+            )}
 
          </div>
       </GlassCard>

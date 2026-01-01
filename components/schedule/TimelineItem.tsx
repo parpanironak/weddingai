@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScheduleEvent } from '../../types';
 import { GlassCard } from '../GlassCard';
-import { Music, Sun, Heart, MapPin, Clock, Wine } from 'lucide-react';
+import { Music, Sun, Heart, MapPin, Clock, Wine, Key } from 'lucide-react';
 
 interface TimelineItemProps {
   event: ScheduleEvent;
@@ -11,11 +11,14 @@ interface TimelineItemProps {
   onClick: () => void;
 }
 
-const getIcon = (iconName: string) => {
+const getIcon = (iconName: string, isLogistics?: boolean) => {
+  if (isLogistics) return <Key className="text-white" size={14} />;
+
   switch (iconName) {
     case 'music': return <Music className="text-white" size={16} />;
     case 'sun': return <Sun className="text-white" size={16} />;
     case 'glass': return <Wine className="text-white" size={16} />;
+    case 'key': return <Key className="text-white" size={16} />;
     default: return <Heart className="text-white" size={16} />;
   }
 };
@@ -23,6 +26,46 @@ const getIcon = (iconName: string) => {
 export const TimelineItem: React.FC<TimelineItemProps> = ({ event, index, isActive, onHover, onClick }) => {
   const isRight = index % 2 !== 0; 
   
+  if (event.isLogistics) {
+      return (
+        <div 
+            className={`relative flex items-center md:justify-between group ${isRight ? 'md:flex-row' : 'md:flex-row-reverse'}`}
+            onMouseEnter={onHover}
+            onClick={onClick}
+        >
+            {/* Desktop Spacer */}
+            <div className="hidden md:block w-5/12" />
+
+            {/* Center Node (Small) */}
+            <div className={`
+                absolute left-6 md:left-1/2 -translate-x-1/2
+                w-8 h-8 rounded-full border border-white/20 shadow-lg 
+                flex items-center justify-center z-10 transition-all duration-300 bg-scandi-charcoal
+            `}>
+                {getIcon(event.icon, true)}
+            </div>
+
+            {/* Content Side (Compact Pill) */}
+            <div className={`
+                pl-16 md:pl-0 w-full md:w-5/12 text-left
+                ${isRight ? 'md:text-left md:pl-4' : 'md:text-right md:pr-4'}
+            `}>
+                <div className={`
+                    inline-flex items-center gap-4 px-5 py-2.5 rounded-full cursor-pointer transition-all duration-300
+                    bg-scandi-charcoal/80 text-white backdrop-blur-md border border-white/10 shadow-lg
+                    hover:bg-scandi-charcoal hover:scale-[1.02]
+                    ${isRight ? 'flex-row' : 'md:flex-row-reverse'}
+                `}>
+                    <div className={`flex flex-col ${isRight ? 'text-left' : 'md:text-right text-left'}`}>
+                        <span className="text-sm font-serif leading-none mb-0.5">{event.title}</span>
+                        <span className="text-[9px] uppercase tracking-widest text-white/60 font-bold">{event.time}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+      );
+  }
+
   return (
     <div 
         className={`relative flex items-center md:justify-between group ${isRight ? 'md:flex-row' : 'md:flex-row-reverse'}`}
