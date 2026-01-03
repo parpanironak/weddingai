@@ -21,6 +21,15 @@ const CREDENTIALS_PATH = process.env.GOOGLE_APPLICATION_CREDENTIALS || path.join
 app.use(cors());
 app.use(express.json());
 
+// Global error handler for malformed JSON
+app.use((error, req, res, next) => {
+  if (error instanceof SyntaxError && 'body' in error) {
+    console.error('Invalid JSON payload received');
+    return res.status(400).json({ error: 'Invalid JSON payload' });
+  }
+  next();
+});
+
 // ------------------------------------------------------------------
 // DATA SEED
 // ------------------------------------------------------------------
@@ -169,6 +178,57 @@ async function updateGuestData(code, data) {
   }
 }
 
+const isValidMember = (member) => {
+  if (!member || typeof member !== 'object') return false;
+
+  const { name, attendance, dietaryPreference, allergies, otherAllergies, travelMode, arrivalDetails } = member;
+  const hasValidName = typeof name === 'string' && name.trim().length > 0;
+  const hasValidAttendance = ['pending', 'attending', 'not_attending'].includes(attendance);
+  const hasValidDiet = typeof dietaryPreference === 'string';
+  const hasValidAllergies = Array.isArray(allergies) && allergies.every((a) => typeof a === 'string');
+  const hasValidOtherAllergies = typeof otherAllergies === 'string';
+  const hasValidTravel = typeof travelMode === 'string';
+  const hasValidArrival = typeof arrivalDetails === 'string';
+
+  return (
+    hasValidName &&
+    hasValidAttendance &&
+    hasValidDiet &&
+    hasValidAllergies &&
+    hasValidOtherAllergies &&
+    hasValidTravel &&
+    hasValidArrival
+  );
+};
+
+const validateRsvpPayload = (members, rsvp) => {
+  if (!Array.isArray(members) || members.length === 0) {
+    return 'Members array is required and cannot be empty';
+  }
+
+  const invalidMember = members.find((member) => !isValidMember(member));
+  if (invalidMember) {
+    return 'Each member must include name, attendance, dietary preference, allergy details, and travel details';
+  }
+
+  if (rsvp && typeof rsvp !== 'object') {
+    return 'RSVP details must be an object';
+  }
+
+  if (rsvp) {
+    const { message, relationship, tone } = rsvp;
+    const messageOk = message === undefined || typeof message === 'string';
+    const relationshipOk = relationship === undefined || typeof relationship === 'string';
+    const toneOk = tone === undefined || typeof tone === 'string';
+
+    if (!messageOk || !relationshipOk || !toneOk) {
+      return 'RSVP message, relationship, and tone must be strings when provided';
+    }
+  }
+
+  return null;
+};
+
 // ------------------------------------------------------------------
 // API ROUTES
 // ------------------------------------------------------------------
@@ -194,16 +254,40 @@ app.get('/api/guest/:code', async (req, res) => {
 app.post('/api/guest/:code/rsvp', async (req, res) => {
   try {
     const { code } = req.params;
-    const { members, rsvp } = req.body; 
+    const { members, rsvp } = req.body;
+
+    const validationError = validateRsvpPayload(members, rsvp);
+    if (validationError) {
+      return res.status(400).json({ error: validationError });
+    }
 
     // Construct update object
-    const updatePayload = {
-        members: members,
-        rsvp: {
-            ...rsvp,
-            updatedAt: new Date().toISOString()
+    const sanitizedMembers = members.map((member) => ({
+      name: member.name.trim(),
+      attendance: member.attendance,
+      dietaryPreference: member.dietaryPreference.trim(),
+      allergies: member.allergies.map((allergy) => allergy.trim()).filter(Boolean),
+      otherAllergies: member.otherAllergies.trim(),
+      travelMode: member.travelMode.trim(),
+      arrivalDetails: member.arrivalDetails.trim()
+    }));
+
+    const sanitizedRsvp = rsvp
+      ? {
+          ...(rsvp.message !== undefined ? { message: rsvp.message?.trim() ?? '' } : {}),
+          ...(rsvp.relationship !== undefined ? { relationship: rsvp.relationship?.trim() ?? '' } : {}),
+          ...(rsvp.tone !== undefined ? { tone: rsvp.tone?.trim() ?? '' } : {}),
+          updatedAt: new Date().toISOString()
         }
+      : null;
+
+    const updatePayload = {
+        members: sanitizedMembers
     };
+
+    if (sanitizedRsvp) {
+      updatePayload.rsvp = sanitizedRsvp;
+    }
 
     const updatedGuest = await updateGuestData(code, updatePayload);
     
